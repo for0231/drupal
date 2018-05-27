@@ -1,0 +1,18 @@
+# IP routing definition
+
+entity.isp_ip.canonical:
+  route_name: entity.isp_ip.canonical
+  base_route: entity.isp_ip.canonical
+  title: 'View'
+
+entity.isp_ip.edit_form:
+  route_name: entity.isp_ip.edit_form
+  base_route: entity.isp_ip.canonical
+  title: 'Edit'
+
+entity.isp_ip.delete_form:
+  route_name:  entity.isp_ip.delete_form
+  base_route:  entity.isp_ip.canonical
+  title: Delete
+  weight: 10
+

@@ -1,0 +1,14 @@
+{
+  "name": "drupal/isp_ip",
+  "type": "drupal-module",
+  "description": "The ip of isp.",
+  "keywords": ["Drupal"],
+  "license": "GPL-2.0+",
+  "homepage": "https://www.drupal.org/project/isp_ip",
+  "minimum-stability": "dev",
+  "support": {
+    "issues": "https://www.drupal.org/project/issues/isp_ip",
+    "source": "http://cgit.drupalcode.org/isp_ip"
+  },
+  "require": { }
+}

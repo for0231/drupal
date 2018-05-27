@@ -1,0 +1,18 @@
+
+# IP menu items definition
+entity.isp_ip.collection:
+  title: 'IP list'
+  route_name: entity.isp_ip.collection
+  description: 'List IP entities'
+  parent: system.admin_structure
+  weight: 100
+
+
+# IP type menu items definition
+entity.isp_ip_type.collection:
+  title: 'IP type'
+  route_name: entity.isp_ip_type.collection
+  description: 'List IP type (bundles)'
+  parent: system.admin_structure
+  weight: 99
+

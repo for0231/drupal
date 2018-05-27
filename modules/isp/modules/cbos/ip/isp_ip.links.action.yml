@@ -1,0 +1,11 @@
+entity.isp_ip.add_form:
+  route_name: entity.isp_ip.add_page
+  title: 'Add IP'
+  appears_on:
+    - entity.isp_ip.collection
+entity.isp_ip_type.add_form:
+  route_name: entity.isp_ip_type.add_form
+  title: 'Add IP type'
+  appears_on:
+    - entity.isp_ip_type.collection
+
