@@ -8,4 +8,3 @@ entity.isp_ip_type.add_form:
   title: 'Add IP type'
   appears_on:
     - entity.isp_ip_type.collection
-

@@ -15,4 +15,3 @@ entity.isp_ip.delete_form:
   base_route:  entity.isp_ip.canonical
   title: Delete
   weight: 10
-

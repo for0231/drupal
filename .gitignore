@@ -38,5 +38,3 @@ sites/simpletest
 # Ignore SimpleTest multi-site environment.
 # simpletest
 .idea/
-profiles/isp
-modules/contrib/

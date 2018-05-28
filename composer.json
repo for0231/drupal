@@ -16,7 +16,13 @@
         "drupal/coffee": "^1.0@beta",
         "drupal/bootstrap": "^3.11",
         "drupal/bootstrap_mint": "^4.0",
-        "drupal/bootstrap_layouts": "^5.1"
+        "drupal/bootstrap_layouts": "^5.1",
+        "drupal/commerce_recurring": "^1.0@beta",
+        "drupal/commerce_braintree": "~1.0",
+        "drupal/ds": "^3.1",
+        "drupal/commerce_autosku": "^2.0@beta",
+        "drupal/inline_entity_form": "^1.0@RC",
+        "drupal/rules": "^3.0@alpha"
     },
     "replace": {
         "drupal/core": "^8.6"

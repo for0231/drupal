@@ -1,6 +1,6 @@
-name: 'IP'
+name: 'Server'
 type: module
-description: 'The ip of isp.'
+description: 'The server of isp.'
 core: 8.x
 package: 'isp'
 dependencies:

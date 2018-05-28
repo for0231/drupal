@@ -1,17 +1,17 @@
 <?php
 
-namespace Drupal\isp_ip;
+namespace Drupal\isp_server;
 
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\Routing\AdminHtmlRouteProvider;
 
 /**
- * Provides routes for IP type entities.
+ * Provides routes for Server type entities.
  *
  * @see Drupal\Core\Entity\Routing\AdminHtmlRouteProvider
  * @see Drupal\Core\Entity\Routing\DefaultHtmlRouteProvider
  */
-class IpTypeHtmlRouteProvider extends AdminHtmlRouteProvider {
+class ServerTypeHtmlRouteProvider extends AdminHtmlRouteProvider {
 
   /**
    * {@inheritdoc}

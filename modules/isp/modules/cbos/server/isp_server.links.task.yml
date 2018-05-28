@@ -1,0 +1,17 @@
+# Server routing definition
+
+entity.isp_server.canonical:
+  route_name: entity.isp_server.canonical
+  base_route: entity.isp_server.canonical
+  title: 'View'
+
+entity.isp_server.edit_form:
+  route_name: entity.isp_server.edit_form
+  base_route: entity.isp_server.canonical
+  title: 'Edit'
+
+entity.isp_server.delete_form:
+  route_name:  entity.isp_server.delete_form
+  base_route:  entity.isp_server.canonical
+  title: Delete
+  weight: 10

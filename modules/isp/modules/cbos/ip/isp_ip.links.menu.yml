@@ -15,4 +15,3 @@ entity.isp_ip_type.collection:
   description: 'List IP type (bundles)'
   parent: system.admin_structure
   weight: 99
-

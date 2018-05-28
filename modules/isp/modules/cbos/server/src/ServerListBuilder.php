@@ -1,23 +1,23 @@
 <?php
 
-namespace Drupal\isp_ip;
+namespace Drupal\isp_server;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityListBuilder;
 use Drupal\Core\Link;
 
 /**
- * Defines a class to build a listing of IP entities.
+ * Defines a class to build a listing of Server entities.
  *
- * @ingroup isp_ip
+ * @ingroup isp_server
  */
-class IpListBuilder extends EntityListBuilder {
+class ServerListBuilder extends EntityListBuilder {
 
   /**
    * {@inheritdoc}
    */
   public function buildHeader() {
-    $header['id'] = $this->t('IP ID');
+    $header['id'] = $this->t('Server ID');
     $header['name'] = $this->t('Name');
     return $header + parent::buildHeader();
   }
@@ -26,12 +26,12 @@ class IpListBuilder extends EntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
-    /* @var $entity \Drupal\isp_ip\Entity\Ip */
+    /* @var $entity \Drupal\isp_server\Entity\Server */
     $row['id'] = $entity->id();
     $row['name'] = Link::createFromRoute(
       $entity->label(),
-      'entity.isp_ip.edit_form',
-      ['isp_ip' => $entity->id()]
+      'entity.isp_server.edit_form',
+      ['isp_server' => $entity->id()]
     );
     return $row + parent::buildRow($entity);
   }
