@@ -54,6 +54,7 @@ class MediaDisplayTest extends MediaJavascriptTestBase {
 
     // Enable the field on the display and verify it becomes visible on the UI.
     $this->drupalGet("/admin/structure/media/manage/{$media_type->id()}/display");
+    $assert_session->buttonExists('Show row weights')->press();
     $page->selectFieldOption('fields[name][region]', 'content');
     $assert_session->waitForElementVisible('css', '#edit-fields-name-settings-edit');
     $page->pressButton('Save');
@@ -68,7 +69,7 @@ class MediaDisplayTest extends MediaJavascriptTestBase {
     $this->drupalGet('media/add/image');
     $image_media_name = 'Fantastic image asset!';
     $page->fillField('name[0][value]', $image_media_name);
-    $page->attachFileToField('files[field_media_image_0]', \Drupal::root() . '/core/modules/media/tests/fixtures/example_1.jpeg');
+    $page->attachFileToField('files[field_media_image_0]', $this->root . '/core/modules/media/tests/fixtures/example_1.jpeg');
     $result = $assert_session->waitForButton('Remove');
     $this->assertNotEmpty($result);
     $page->fillField('field_media_image[0][alt]', 'Image Alt Text 1');

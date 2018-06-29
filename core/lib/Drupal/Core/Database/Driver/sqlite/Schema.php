@@ -501,14 +501,21 @@ class Schema extends DatabaseSchema {
         if ($length) {
           $schema['fields'][$row->name]['length'] = $length;
         }
+        // $row->pk contains a number that reflects the primary key order. We
+        // use that as the key and sort (by key) below to return the primary key
+        // in the same order that it is stored in.
         if ($row->pk) {
-          $schema['primary key'][] = $row->name;
+          $schema['primary key'][$row->pk] = $row->name;
         }
       }
       else {
         throw new \Exception("Unable to parse the column type " . $row->type);
       }
     }
+    ksort($schema['primary key']);
+    // Re-key the array because $row->pk starts counting at 1.
+    $schema['primary key'] = array_values($schema['primary key']);
+
     $indexes = [];
     $result = $this->connection->query('PRAGMA ' . $info['schema'] . '.index_list(' . $info['table'] . ')');
     foreach ($result as $row) {
@@ -544,9 +551,11 @@ class Schema extends DatabaseSchema {
 
     unset($new_schema['fields'][$field]);
 
-    // Handle possible primary key changes.
-    if (isset($new_schema['primary key']) && ($key = array_search($field, $new_schema['primary key'])) !== FALSE) {
-      unset($new_schema['primary key'][$key]);
+    // Drop the primary key if the field to drop is part of it. This is
+    // consistent with the behavior on PostgreSQL.
+    // @see \Drupal\Core\Database\Driver\mysql\Schema::dropField()
+    if (isset($new_schema['primary key']) && in_array($field, $new_schema['primary key'], TRUE)) {
+      unset($new_schema['primary key']);
     }
 
     // Handle possible index changes.
@@ -626,8 +635,10 @@ class Schema extends DatabaseSchema {
       if (is_array($field)) {
         $field = &$field[0];
       }
-      if (isset($mapping[$field])) {
-        $field = $mapping[$field];
+
+      $mapped_field = array_search($field, $mapping, TRUE);
+      if ($mapped_field !== FALSE) {
+        $field = $mapped_field;
       }
     }
     return $key_definition;
@@ -739,6 +750,17 @@ class Schema extends DatabaseSchema {
     unset($new_schema['primary key']);
     $this->alterTable($table, $old_schema, $new_schema);
     return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function findPrimaryKeyColumns($table) {
+    if (!$this->tableExists($table)) {
+      return FALSE;
+    }
+    $schema = $this->introspectSchema($table);
+    return $schema['primary key'];
   }
 
   /**

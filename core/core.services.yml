@@ -539,6 +539,8 @@ services:
     # @todo Remove this tag in https://www.drupal.org/node/2549143.
     tags:
       - { name: plugin_manager_cache_clear }
+  entity.memory_cache:
+    class: Drupal\Core\Cache\MemoryCache\MemoryCache
   entity_type.manager:
     class: Drupal\Core\Entity\EntityTypeManager
     arguments: ['@container.namespaces', '@module_handler', '@cache.discovery', '@string_translation', '@class_resolver']
@@ -573,7 +575,7 @@ services:
       - { name: event_subscriber }
   entity.definition_update_manager:
     class: Drupal\Core\Entity\EntityDefinitionUpdateManager
-    arguments: ['@entity.manager']
+    arguments: ['@entity.manager', '@entity.last_installed_schema.repository']
   entity.last_installed_schema.repository:
     class: Drupal\Core\Entity\EntityLastInstalledSchemaRepository
     arguments: ['@keyvalue']
@@ -606,6 +608,7 @@ services:
   plugin.manager.block:
     class: Drupal\Core\Block\BlockManager
     parent: default_plugin_manager
+    arguments: ['@logger.channel.default']
   plugin.manager.field.field_type:
     class: Drupal\Core\Field\FieldTypePluginManager
     arguments: ['@container.namespaces', '@cache.discovery', '@module_handler', '@typed_data_manager']
@@ -1096,6 +1099,11 @@ services:
     arguments: ['@title_resolver', '@renderer']
     tags:
       - { name: render.main_content_renderer, format: drupal_dialog.off_canvas }
+  main_content_renderer.off_canvas_top:
+    class: Drupal\Core\Render\MainContent\OffCanvasRenderer
+    arguments: ['@title_resolver', '@renderer', 'top']
+    tags:
+      - { name: render.main_content_renderer, format: drupal_dialog.off_canvas_top }
   main_content_renderer.modal:
     class: Drupal\Core\Render\MainContent\ModalRenderer
     arguments: ['@title_resolver']

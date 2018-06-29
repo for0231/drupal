@@ -132,7 +132,9 @@ class MigrateUpgrade6Test extends MigrateUpgradeExecuteTestBase {
       'filefield',
       'filter',
       'forum',
+      'i18nblocks',
       'i18nmenu',
+      'i18nblocks',
       'i18ntaxonomy',
       'imagecache',
       'imagefield',
@@ -174,7 +176,6 @@ class MigrateUpgrade6Test extends MigrateUpgradeExecuteTestBase {
    */
   protected function getMissingPaths() {
     return [
-      'i18nblocks',
       'i18ncck',
       'i18ncontent',
       // This module is in the missing path list because it is installed on the

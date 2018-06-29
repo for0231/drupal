@@ -812,7 +812,7 @@ abstract class KernelTestBase extends TestCase implements ServiceProviderInterfa
     // profile that is not the current profile, and we don't yet have a cached
     // way to receive inactive profile information.
     // @todo Remove as part of https://www.drupal.org/node/2186491
-    $listing = new ExtensionDiscovery(\Drupal::root());
+    $listing = new ExtensionDiscovery($this->root);
     $module_list = $listing->scan('module');
     // In ModuleHandlerTest we pass in a profile as if it were a module.
     $module_list += $listing->scan('profile');
@@ -934,9 +934,30 @@ abstract class KernelTestBase extends TestCase implements ServiceProviderInterfa
    *   \Drupal\Core\Site\Settings::get() to perform custom merges.
    */
   protected function setSetting($name, $value) {
+    if ($name === 'install_profile') {
+      @trigger_error('Use \Drupal\KernelTests\KernelTestBase::setInstallProfile() to set the install profile in kernel tests. See https://www.drupal.org/node/2538996', E_USER_DEPRECATED);
+      $this->setInstallProfile($value);
+    }
     $settings = Settings::getInstance() ? Settings::getAll() : [];
     $settings[$name] = $value;
     new Settings($settings);
+  }
+
+  /**
+   * Sets the install profile and rebuilds the container to update it.
+   *
+   * @param string $profile
+   *   The install profile to set.
+   */
+  protected function setInstallProfile($profile) {
+    $this->container->get('config.factory')
+      ->getEditable('core.extension')
+      ->set('profile', $profile)
+      ->save();
+
+    // The installation profile is provided by a container parameter. Saving
+    // the configuration doesn't automatically trigger invalidation
+    $this->container->get('kernel')->rebuildContainer();
   }
 
   /**

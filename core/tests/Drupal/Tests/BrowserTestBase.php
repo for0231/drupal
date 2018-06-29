@@ -593,6 +593,33 @@ abstract class BrowserTestBase extends TestCase {
   }
 
   /**
+   * Obtain the HTTP client for the system under test.
+   *
+   * Use this method for arbitrary HTTP requests to the site under test. For
+   * most tests, you should not get the HTTP client and instead use navigation
+   * methods such as drupalGet() and clickLink() in order to benefit from
+   * assertions.
+   *
+   * Subclasses which substitute a different Mink driver should override this
+   * method and provide a Guzzle client if the Mink driver provides one.
+   *
+   * @return \GuzzleHttp\ClientInterface
+   *   The client with BrowserTestBase configuration.
+   *
+   * @throws \RuntimeException
+   *   If the Mink driver does not support a Guzzle HTTP client, throw an
+   *   exception.
+   */
+  protected function getHttpClient() {
+    /* @var $mink_driver \Behat\Mink\Driver\DriverInterface */
+    $mink_driver = $this->getSession()->getDriver();
+    if ($mink_driver instanceof GoutteDriver) {
+      return $mink_driver->getClient()->getClient();
+    }
+    throw new \RuntimeException('The Mink client type ' . get_class($mink_driver) . ' does not support getHttpClient().');
+  }
+
+  /**
    * Returns WebAssert object.
    *
    * @param string $name
@@ -672,11 +699,13 @@ abstract class BrowserTestBase extends TestCase {
    *   to set for example the "Accept-Language" header for requesting the page
    *   in a different language. Note that not all headers are supported, for
    *   example the "Accept" header is always overridden by the browser. For
-   *   testing REST APIs it is recommended to directly use an HTTP client such
-   *   as Guzzle instead.
+   *   testing REST APIs it is recommended to obtain a separate HTTP client
+   *   using getHttpClient() and performing requests that way.
    *
    * @return string
    *   The retrieved HTML string, also available as $this->getRawContent()
+   *
+   * @see \Drupal\Tests\BrowserTestBase::getHttpClient()
    */
   protected function drupalGet($path, array $options = [], array $headers = []) {
     $options['absolute'] = TRUE;
@@ -895,7 +924,7 @@ abstract class BrowserTestBase extends TestCase {
   /**
    * Executes a form submission.
    *
-   * It will be done as usual POST request with Mink.
+   * It will be done as usual submit form with Mink.
    *
    * @param \Drupal\Core\Url|string $path
    *   Location of the post form. Either a Drupal path or an absolute path or
@@ -961,13 +990,20 @@ abstract class BrowserTestBase extends TestCase {
    *   POST data.
    * @param array $options
    *   Options to be forwarded to the url generator.
+   * @param string|null $form_html_id
+   *   (optional) HTML ID of the form to be submitted. On some pages
+   *   there are many identical forms, so just using the value of the submit
+   *   button is not enough. For example: 'trigger-node-presave-assign-form'.
+   *   Note that this is not the Drupal $form_id, but rather the HTML ID of the
+   *   form, which is typically the same thing but with hyphens replacing the
+   *   underscores.
    *
    * @return string
    *   (deprecated) The response content after submit form. It is necessary for
    *   backwards compatibility and will be removed before Drupal 9.0. You should
    *   just use the webAssert object for your assertions.
    */
-  protected function drupalPostForm($path, $edit, $submit, array $options = []) {
+  protected function drupalPostForm($path, $edit, $submit, array $options = [], $form_html_id = NULL) {
     if (is_object($submit)) {
       // Cast MarkupInterface objects to string.
       $submit = (string) $submit;
@@ -983,7 +1019,7 @@ abstract class BrowserTestBase extends TestCase {
       $this->drupalGet($path, $options);
     }
 
-    $this->submitForm($edit, $submit);
+    $this->submitForm($edit, $submit, $form_html_id);
 
     return $this->getSession()->getPage()->getContent();
   }

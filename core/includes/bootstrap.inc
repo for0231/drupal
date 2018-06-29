@@ -10,10 +10,10 @@ use Drupal\Component\Utility\Html;
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Config\BootstrapConfigStorageFactory;
+use Drupal\Core\Extension\Exception\UnknownExtensionException;
 use Drupal\Core\Logger\RfcLogLevel;
 use Drupal\Core\Test\TestDatabase;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\Core\Site\Settings;
 use Drupal\Core\Utility\Error;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 
@@ -246,7 +246,7 @@ function drupal_get_filename($type, $name, $filename = NULL) {
     try {
       return $extension_list->getPathname($name);
     }
-    catch (\InvalidArgumentException $e) {
+    catch (UnknownExtensionException $e) {
       // Catch the exception. This will result in triggering an error.
     }
   }
@@ -795,12 +795,6 @@ function drupal_get_profile() {
     }
     else {
       $profile = BootstrapConfigStorageFactory::getDatabaseStorage()->read('core.extension')['profile'];
-    }
-
-    // A BC layer just in in case this only exists in Settings. Introduced in
-    // Drupal 8.3.x and will be removed before Drupal 9.0.0.
-    if (empty($profile)) {
-      $profile = Settings::get('install_profile');
     }
   }
 
