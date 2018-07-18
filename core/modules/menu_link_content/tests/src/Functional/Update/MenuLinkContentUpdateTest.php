@@ -10,6 +10,7 @@ use Drupal\user\Entity\User;
  *
  * @group menu_link_content
  * @group Update
+ * @group legacy
  */
 class MenuLinkContentUpdateTest extends UpdatePathTestBase {
 
@@ -26,10 +27,8 @@ class MenuLinkContentUpdateTest extends UpdatePathTestBase {
    * Tests the addition of the publishing status entity key.
    *
    * @see menu_link_content_update_8601()
-   *
-   * @group failing
    */
-  public function testPublishedEntityKeyAdditon() {
+  public function testPublishedEntityKeyAddition() {
     $this->runUpdates();
 
     // Log in as user 1.

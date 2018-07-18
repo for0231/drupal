@@ -157,7 +157,7 @@
     const $fieldList = $(form).find('[name]').map((index, element) =>
       // We use id to avoid name duplicates on radio fields and filter out
       // elements with a name but no id.
-       element.getAttribute('id'));
+      element.getAttribute('id'));
     // Return a true array.
     return $.makeArray($fieldList);
   }
@@ -270,7 +270,7 @@
       url = e.currentTarget.location ? e.currentTarget.location : e.currentTarget;
     }
     else {
-      url = location;
+      url = window.location;
     }
     const hash = url.hash.substr(1);
     if (hash) {

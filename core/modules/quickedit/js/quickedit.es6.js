@@ -18,7 +18,8 @@
  */
 
 (function ($, _, Backbone, Drupal, drupalSettings, JSON, storage) {
-  const options = $.extend(drupalSettings.quickedit,
+  const options = $.extend(
+    drupalSettings.quickedit,
     // Merge strings on top of drupalSettings so that they are not mutable.
     {
       strings: {
@@ -236,7 +237,7 @@
     // The entity for the given contextual link contains at least one field that
     // the current user may edit in-place; instantiate EntityModel,
     // EntityDecorationView and ContextualLinkView.
-    else if (hasFieldWithPermission(fieldIDs)) {
+    if (hasFieldWithPermission(fieldIDs)) {
       const entityModel = new Drupal.quickedit.EntityModel({
         el: contextualLink.region,
         entityID: contextualLink.entityID,
@@ -278,7 +279,7 @@
     }
     // There was not at least one field that the current user may edit in-place,
     // even though the metadata for all fields within this entity is available.
-    else if (allMetadataExists(fieldIDs)) {
+    if (allMetadataExists(fieldIDs)) {
       return true;
     }
 
@@ -358,7 +359,12 @@
     // Otherwise: queue the field. It is now available to be set up when its
     // corresponding entity becomes in-place editable.
     else {
-      fieldsAvailableQueue.push({ el: fieldElement, fieldID, entityID, entityInstanceID });
+      fieldsAvailableQueue.push({
+        el: fieldElement,
+        fieldID,
+        entityID,
+        entityInstanceID,
+      });
     }
   }
 

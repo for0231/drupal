@@ -15,7 +15,6 @@ use Drupal\Core\Utility\Error;
 use Drupal\Tests\AssertHelperTrait as BaseAssertHelperTrait;
 use Drupal\Tests\ConfigTestTrait;
 use Drupal\Tests\RandomGeneratorTrait;
-use Drupal\Tests\SessionTestTrait;
 use Drupal\Tests\Traits\Core\GeneratePermutationsTrait;
 
 /**
@@ -27,7 +26,6 @@ abstract class TestBase {
 
   use BaseAssertHelperTrait;
   use TestSetupTrait;
-  use SessionTestTrait;
   use RandomGeneratorTrait;
   use GeneratePermutationsTrait;
   // For backwards compatibility switch the visbility of the methods to public.
@@ -246,6 +244,20 @@ abstract class TestBase {
    */
   public function __construct($test_id = NULL) {
     $this->testId = $test_id;
+  }
+
+  /**
+   * Fail the test if it belongs to a PHPUnit-based framework.
+   *
+   * This would probably be caused by automated test conversions such as those
+   * in https://www.drupal.org/project/drupal/issues/2770921.
+   */
+  public function checkTestHierarchyMismatch() {
+    // We can use getPhpunitTestSuite() because it uses a regex on the class'
+    // namespace to deduce the PHPUnit test suite.
+    if (TestDiscovery::getPhpunitTestSuite(get_class($this)) !== FALSE) {
+      $this->fail(get_class($this) . ' incorrectly subclasses ' . __CLASS__ . ', it should probably extend \Drupal\Tests\BrowserTestBase instead.');
+    }
   }
 
   /**
@@ -864,6 +876,7 @@ abstract class TestBase {
    *   methods during debugging.
    */
   public function run(array $methods = []) {
+    $this->checkTestHierarchyMismatch();
     $class = get_class($this);
 
     if ($missing_requirements = $this->checkRequirements()) {

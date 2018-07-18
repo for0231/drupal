@@ -10,6 +10,7 @@ use Drupal\Core\Database\DatabaseExceptionWrapper;
 use Drupal\Core\Database\SchemaException;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\ContentEntityStorageBase;
+use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Entity\EntityBundleListenerInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
@@ -184,22 +185,21 @@ class SqlContentEntityStorage extends ContentEntityStorageBase implements SqlEnt
     $this->dataTable = NULL;
     $this->revisionDataTable = NULL;
 
-    // @todo Remove table names from the entity type definition in
-    //   https://www.drupal.org/node/2232465.
-    $this->baseTable = $this->entityType->getBaseTable() ?: $this->entityTypeId;
+    $table_mapping = $this->getTableMapping();
+    $this->baseTable = $table_mapping->getBaseTable();
     $revisionable = $this->entityType->isRevisionable();
     if ($revisionable) {
       $this->revisionKey = $this->entityType->getKey('revision') ?: 'revision_id';
-      $this->revisionTable = $this->entityType->getRevisionTable() ?: $this->entityTypeId . '_revision';
+      $this->revisionTable = $table_mapping->getRevisionTable();
     }
     $translatable = $this->entityType->isTranslatable();
     if ($translatable) {
-      $this->dataTable = $this->entityType->getDataTable() ?: $this->entityTypeId . '_field_data';
+      $this->dataTable = $table_mapping->getDataTable();
       $this->langcodeKey = $this->entityType->getKey('langcode');
       $this->defaultLangcodeKey = $this->entityType->getKey('default_langcode');
     }
     if ($revisionable && $translatable) {
-      $this->revisionDataTable = $this->entityType->getRevisionDataTable() ?: $this->entityTypeId . '_field_revision';
+      $this->revisionDataTable = $table_mapping->getRevisionDataTable();
     }
   }
 
@@ -287,6 +287,11 @@ class SqlContentEntityStorage extends ContentEntityStorageBase implements SqlEnt
    */
   public function setTableMapping(TableMappingInterface $table_mapping) {
     $this->tableMapping = $table_mapping;
+
+    $this->baseTable = $table_mapping->getBaseTable();
+    $this->revisionTable = $table_mapping->getRevisionTable();
+    $this->dataTable = $table_mapping->getDataTable();
+    $this->revisionDataTable = $table_mapping->getRevisionDataTable();
   }
 
   /**
@@ -305,27 +310,41 @@ class SqlContentEntityStorage extends ContentEntityStorageBase implements SqlEnt
    * {@inheritdoc}
    */
   public function getTableMapping(array $storage_definitions = NULL) {
-    $table_mapping = $this->tableMapping;
-
-    // If we are using our internal storage definitions, which is our main use
-    // case, we can statically cache the computed table mapping. If a new set
-    // of field storage definitions is passed, for instance when comparing old
-    // and new storage schema, we compute the table mapping without caching.
-    if (!isset($this->tableMapping) || $storage_definitions) {
-      $table_mapping_class = $this->temporary ? TemporaryTableMapping::class : DefaultTableMapping::class;
-      $definitions = $storage_definitions ?: $this->entityManager->getFieldStorageDefinitions($this->entityTypeId);
-
-      /** @var \Drupal\Core\Entity\Sql\DefaultTableMapping|\Drupal\Core\Entity\Sql\TemporaryTableMapping $table_mapping */
-      $table_mapping = $table_mapping_class::create($this->entityType, $definitions);
-
-      // Cache the computed table mapping only if we are using our internal
-      // storage definitions.
-      if (!$storage_definitions) {
-        $this->tableMapping = $table_mapping;
-      }
+    // If a new set of field storage definitions is passed, for instance when
+    // comparing old and new storage schema, we compute the table mapping
+    // without caching.
+    if ($storage_definitions) {
+      return $this->getCustomTableMapping($this->entityType, $storage_definitions);
     }
 
-    return $table_mapping;
+    // If we are using our internal storage definitions, which is our main use
+    // case, we can statically cache the computed table mapping.
+    if (!isset($this->tableMapping)) {
+      $storage_definitions = $this->entityManager->getFieldStorageDefinitions($this->entityTypeId);
+
+      $this->tableMapping = $this->getCustomTableMapping($this->entityType, $storage_definitions);
+    }
+
+    return $this->tableMapping;
+  }
+
+  /**
+   * Gets a table mapping for the specified entity type and storage definitions.
+   *
+   * @param \Drupal\Core\Entity\ContentEntityTypeInterface $entity_type
+   *   An entity type definition.
+   * @param \Drupal\Core\Field\FieldStorageDefinitionInterface[] $storage_definitions
+   *   An array of field storage definitions to be used to compute the table
+   *   mapping.
+   *
+   * @return \Drupal\Core\Entity\Sql\TableMappingInterface
+   *   A table mapping object for the entity's tables.
+   *
+   * @internal
+   */
+  public function getCustomTableMapping(ContentEntityTypeInterface $entity_type, array $storage_definitions) {
+    $table_mapping_class = $this->temporary ? TemporaryTableMapping::class : DefaultTableMapping::class;
+    return $table_mapping_class::create($entity_type, $storage_definitions);
   }
 
   /**
@@ -641,7 +660,7 @@ class SqlContentEntityStorage extends ContentEntityStorageBase implements SqlEnt
    *   A SelectQuery object for loading the entity.
    */
   protected function buildQuery($ids, $revision_ids = FALSE) {
-    $query = $this->database->select($this->entityType->getBaseTable(), 'base');
+    $query = $this->database->select($this->baseTable, 'base');
 
     $query->addTag($this->entityTypeId . '_load_multiple');
 
@@ -719,7 +738,7 @@ class SqlContentEntityStorage extends ContentEntityStorageBase implements SqlEnt
   protected function doDeleteFieldItems($entities) {
     $ids = array_keys($entities);
 
-    $this->database->delete($this->entityType->getBaseTable())
+    $this->database->delete($this->baseTable)
       ->condition($this->idKey, $ids, 'IN')
       ->execute();
 
@@ -1040,7 +1059,7 @@ class SqlContentEntityStorage extends ContentEntityStorageBase implements SqlEnt
         $record->{$this->revisionKey} = $insert_id;
       }
       if ($entity->isDefaultRevision()) {
-        $this->database->update($this->entityType->getBaseTable())
+        $this->database->update($this->baseTable)
           ->fields([$this->revisionKey => $record->{$this->revisionKey}])
           ->condition($this->idKey, $record->{$this->idKey})
           ->execute();
@@ -1397,14 +1416,6 @@ class SqlContentEntityStorage extends ContentEntityStorageBase implements SqlEnt
    * {@inheritdoc}
    */
   public function onFieldStorageDefinitionCreate(FieldStorageDefinitionInterface $storage_definition) {
-    // If we are adding a field stored in a shared table we need to recompute
-    // the table mapping.
-    // @todo This does not belong here. Remove it once we are able to generate a
-    //   fresh table mapping in the schema handler. See
-    //   https://www.drupal.org/node/2274017.
-    if ($this->getTableMapping()->allowsSharedTableStorage($storage_definition)) {
-      $this->tableMapping = NULL;
-    }
     $this->wrapSchemaException(function () use ($storage_definition) {
       $this->getStorageSchema()->onFieldStorageDefinitionCreate($storage_definition);
     });
@@ -1629,16 +1640,7 @@ class SqlContentEntityStorage extends ContentEntityStorageBase implements SqlEnt
     elseif ($table_mapping->allowsSharedTableStorage($storage_definition)) {
       // Ascertain the table this field is mapped too.
       $field_name = $storage_definition->getName();
-      try {
-        $table_name = $table_mapping->getFieldTableName($field_name);
-      }
-      catch (SqlContentEntityStorageException $e) {
-        // This may happen when changing field storage schema, since we are not
-        // able to use a table mapping matching the passed storage definition.
-        // @todo Revisit this once we are able to instantiate the table mapping
-        //   properly. See https://www.drupal.org/node/2274017.
-        $table_name = $this->dataTable ?: $this->baseTable;
-      }
+      $table_name = $table_mapping->getFieldTableName($field_name);
       $query = $this->database->select($table_name, 't');
       $or = $query->orConditionGroup();
       foreach (array_keys($storage_definition->getColumns()) as $property_name) {
