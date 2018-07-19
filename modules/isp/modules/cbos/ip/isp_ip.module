@@ -1,0 +1,58 @@
+<?php
+
+/**
+ * @file
+ * Contains isp_ip.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function isp_ip_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the isp_ip module.
+    case 'help.page.isp_ip':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('The ip of isp.') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function isp_ip_theme() {
+  $theme = [];
+  $theme['isp_ip'] = [
+    'render element' => 'elements',
+    'file' => 'isp_ip.page.inc',
+    'template' => 'isp_ip',
+  ];
+  $theme['isp_ip_content_add_list'] = [
+    'render element' => 'content',
+    'variables' => ['content' => NULL],
+    'file' => 'isp_ip.page.inc',
+  ];
+  return $theme;
+}
+
+/**
+* Implements hook_theme_suggestions_HOOK().
+*/
+function isp_ip_theme_suggestions_isp_ip(array $variables) {
+  $suggestions = [];
+  $entity = $variables['elements']['#isp_ip'];
+  $sanitized_view_mode = strtr($variables['elements']['#view_mode'], '.', '_');
+
+  $suggestions[] = 'isp_ip__' . $sanitized_view_mode;
+  $suggestions[] = 'isp_ip__' . $entity->bundle();
+  $suggestions[] = 'isp_ip__' . $entity->bundle() . '__' . $sanitized_view_mode;
+  $suggestions[] = 'isp_ip__' . $entity->id();
+  $suggestions[] = 'isp_ip__' . $entity->id() . '__' . $sanitized_view_mode;
+  return $suggestions;
+}

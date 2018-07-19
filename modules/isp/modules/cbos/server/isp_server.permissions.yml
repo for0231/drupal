@@ -1,0 +1,19 @@
+add server entities:
+  title: 'Create new Server entities'
+
+administer server entities:
+  title: 'Administer Server entities'
+  description: 'Allow to access the administration form to configure Server entities.'
+  restrict access: true
+
+delete server entities:
+  title: 'Delete Server entities'
+
+edit server entities:
+  title: 'Edit Server entities'
+
+view published server entities:
+  title: 'View published Server entities'
+
+view unpublished server entities:
+  title: 'View unpublished Server entities'

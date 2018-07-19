@@ -1,0 +1,6 @@
+isp.admin_isp:
+  title: 'ISP'
+  route_name: 'isp.admin_isp'
+  parent: 'system.admin'
+  description: 'Administer and configure your isp.'
+  weight: -9

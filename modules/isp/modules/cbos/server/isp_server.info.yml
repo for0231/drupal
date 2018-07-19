@@ -1,0 +1,7 @@
+name: 'Server'
+type: module
+description: 'The server of isp.'
+core: 8.x
+package: 'isp'
+dependencies:
+  - isp

@@ -1,0 +1,7 @@
+name: 'isp'
+type: module
+description: 'The internet.'
+core: 8.x
+package: 'isp'
+dependencies:
+  - commerce
