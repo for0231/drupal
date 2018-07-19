@@ -101,3 +101,41 @@
 .joyride-expose-cover {
   background: transparent;
 }
+
+.block-tour-button-block .tour-button {
+  background-position: left center;
+  padding-left: 2.75em;
+  padding-right: 1.3333em;
+  text-indent: 0;
+  width: auto;
+  position: relative;
+  color: #3b3b3b;
+}
+
+[dir="rtl"] .block-tour-button-block .tour-button {
+  background-position: right center;
+  padding-left: 1.3333em;
+  padding-right: 2.75em;
+}
+
+.block-tour-button-block .tour-button:before {
+  background: url(../../images/icons/000000/questionmark-disc.svg) center center no-repeat scroll transparent;
+  background-size: 100% auto;
+  content: '';
+  display: block;
+  height: 100%;
+  left: 0.6667em; /* LTR */
+  position: absolute;
+  top: 0;
+  width: 20px;
+}
+
+[dir="rtl"] .block-tour-button-block .tour-button:before {
+  left: auto;
+  right: 0.6667em;
+}
+
+.block-tour-button-block .tour-button:active:before,
+.block-tour-button-block .tour-button.is-active:before {
+  background-image: url(../../images/icons/000000/questionmark-disc.svg);
+}

@@ -128,7 +128,7 @@ abstract class WidgetBase extends PluginSettingsBase implements WidgetInterface 
     // Most widgets need their internal structure preserved in submitted values.
     $elements += ['#tree' => TRUE];
 
-    return [
+    $element = [
       // Aid in theming of widgets by rendering a classified container.
       '#type' => 'container',
       // Assign a different parent, to keep the main id for the widget itself.
@@ -142,6 +142,16 @@ abstract class WidgetBase extends PluginSettingsBase implements WidgetInterface 
       ],
       'widget' => $elements,
     ];
+
+    // Allow module to alter the field widget form element.
+    $context = [
+      'form' => $form,
+      'widget' => $this,
+      'items' => $items,
+    ];
+    \Drupal::moduleHandler()->alter(['field_widget_form_container', 'field_widget_' . $this->getPluginId() . '_form_container'], $element, $form_state, $context);
+
+    return $element;
   }
 
   /**

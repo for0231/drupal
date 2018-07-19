@@ -13,7 +13,7 @@
       $('body').once('tour').each(function () {
         var model = new Drupal.tour.models.StateModel();
         new Drupal.tour.views.ToggleTourView({
-          el: $(context).find('#toolbar-tab-tour'),
+          el: $(context).find('#toolbar-tab-tour, .block-tour-button-block'),
           model: model
         });
 

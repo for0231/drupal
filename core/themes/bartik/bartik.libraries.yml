@@ -46,6 +46,7 @@ global-styling:
       css/components/tabs.css: {}
       css/components/text-formatted.css: {}
       css/components/toolbar.css: {}
+      css/components/tour.theme.css: {}
       css/components/featured-bottom.css: {}
       css/components/password-suggestions.css: {}
       css/components/ui.widget.css: {}
