@@ -1,8 +1,0 @@
-angcode: en
-status: true
-dependencies:
-  enforced:
-    module:
-      - isp_ip
-id: default
-label: Default

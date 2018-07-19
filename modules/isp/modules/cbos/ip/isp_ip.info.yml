@@ -1,7 +1,0 @@
-name: 'IP'
-type: module
-description: 'The ip of isp.'
-core: 8.x
-package: 'isp'
-dependencies:
-  - isp

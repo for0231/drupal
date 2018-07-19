@@ -1,7 +1,0 @@
-isp.admin_isp:
-  path: '/admin/isp'
-  defaults:
-    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
-    _title: 'ISP'
-  requirements:
-    _permission: 'access isp administration pages'
