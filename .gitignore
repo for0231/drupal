@@ -43,3 +43,5 @@ sites/simpletest
 supervisord.pid
 *.swp
 *.swo
+modules/isp
+.idea
